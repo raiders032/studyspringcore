@@ -485,3 +485,116 @@ public class ApplicationContextBasicFindTest {
 * 타입으로 조회시 같은 타입의 스프링 빈이 둘 이상이면 오류가 발생한다. 이때는 빈 이름을 지정하자.
 *  `ac.getBeansOfType()` 을 사용하면 해당 타입의 모든 빈을 조회할 수 있다.
 
+```java
+public class ApplicationContextSameBeanFindTest {
+
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(SameBeanConfig.class);
+
+    @Test
+    @DisplayName("타입으로 조회시 같은 타입이 둘 이상 있으면, 중복 오류가 발생한다.")
+    void findBeanByTypeDuplicate() {
+        Assertions.assertThrows(NoUniqueBeanDefinitionException.class,
+                () -> ac.getBean(MemberRepository.class)
+        );
+    }
+
+    @Test
+    @DisplayName("타입으로 조회시 같은 타입이 둘 이상 있으면, 이름을 지정한다.")
+    void findBeanByNameAndType() {
+        MemberRepository memberRepository = ac.getBean("memberRepository1", MemberRepository.class);
+        assertThat(memberRepository).isInstanceOf(MemberRepository.class);
+    }
+
+    @Test
+    @DisplayName("특정 타입 모두 조회하기")
+    void findAllBeanByType(){
+        Map<String, MemberRepository> beansOfType = ac.getBeansOfType(MemberRepository.class);
+        for (String key : beansOfType.keySet()) {
+            System.out.println("key :" + key + " value: " + beansOfType.get(key));
+        }
+        assertThat(beansOfType.size()).isEqualTo(2);
+    }
+
+    @Configuration
+    static class SameBeanConfig {
+
+        @Bean
+        public MemberRepository memberRepository1() {
+            return new MemoryMemberRepository();
+        }
+
+        @Bean
+        public MemberRepository memberRepository2() {
+            return new MemoryMemberRepository();
+        }
+    }
+
+}
+```
+
+
+
+### 스프링 빈 조회 - 상속 관계
+
+* 부모 타입으로 조회하면, 자식 타입도 함께 조회한다.
+* 모든 자바 객체의 최고 부모인 Object 타입으로 조회하면, 모든 스프링 빈을 조회한다.
+
+```java
+public class ApplicationContextExtendsFindTest {
+
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(TestConfig.class);
+
+    @Test
+    @DisplayName("부모 타입으로 조회시, 자식이 둘 이상이면 중복 오류가 발생한다.")
+    void findBeanByTypeDuplicate() {
+        Assertions.assertThrows(NoUniqueBeanDefinitionException.class,
+                () -> ac.getBean(DiscountPolicy.class)
+        );
+    }
+
+    @Test
+    @DisplayName("부모 타입으로 조회시, 자식이 둘 이상이면 빈 이름을 지정하면 된다.")
+    void findBeanByTypeAndName() {
+        DiscountPolicy rateDiscountPolicy = ac.getBean("rateDiscountPolicy", DiscountPolicy.class);
+        assertThat(rateDiscountPolicy).isInstanceOf(DiscountPolicy.class);
+    }
+
+    @Test
+    @DisplayName("특정 하위 타입으로 조회하기")
+    void findBeanBySubType() {
+        DiscountPolicy rateDiscountPolicy = ac.getBean(RateDiscountPolicy.class);
+        assertThat(rateDiscountPolicy).isInstanceOf(RateDiscountPolicy.class);
+    }
+
+    @Test
+    @DisplayName("부모 타입으로 모두 조회하기")
+    void findByParentType() {
+        Map<String, DiscountPolicy> beansOfType = ac.getBeansOfType(DiscountPolicy.class);
+        assertThat(beansOfType.size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Object 타입으로 모두 조회하기")
+    void findByObjectType() {
+        Map<String, Object> beansOfType = ac.getBeansOfType(Object.class);
+        for (String key : beansOfType.keySet()) {
+            System.out.println("key: " + key + " value: " + beansOfType.get(key));
+        }
+    }
+
+    @Configuration
+    static class TestConfig {
+
+        @Bean
+        public DiscountPolicy rateDiscountPolicy() {
+            return new RateDiscountPolicy();
+        }
+
+        @Bean
+        public DiscountPolicy fixDiscountPolicy() {
+            return new FixDiscountPolicy();
+        }
+    }
+}
+```
+
