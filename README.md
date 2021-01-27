@@ -85,3 +85,29 @@ public class OrderServiceImpl implements OrderService {
 * `OrderServiceImpl` 의 생성자를 통해서 어떤 구현 객체을 주입할지는 오직 외부( AppConfig )에서 결정 한다.
 * DIP 원칙을 준수하게 되었다!!
 
+
+
+### AppConfig 리팩터링
+
+```java
+public class AppConfig {
+
+    private MemberRepository memberRepository() {
+        return new MemoryMemberRepository();
+    }
+
+    private DiscountPolicy discountPolicy() {
+        return new FixDiscountPolicy();
+    }
+
+    public MemberService memberService(){
+        return new MemberServiceImpl(memberRepository());
+    }
+
+    public OrderService orderService(){
+        return new OrderServiceImpl(discountPolicy(), memberRepository());
+    }
+
+}
+```
+
