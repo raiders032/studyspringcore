@@ -434,3 +434,54 @@ name: orderService bean: com.example.studyspringcore.order.OrderServiceImpl@23fb
 ...
 ```
 
+
+
+### 스프링 빈 조회 - 기본
+
+* `ac.getBean(빈이름, 타입)`
+* `ac.getBean(타입)`
+
+> 구체 타입으로 조회하면 변경시 유연성이 떨어진다.
+
+```java
+public class ApplicationContextBasicFindTest {
+
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
+
+    @Test
+    @DisplayName("빈 이름으로 조회")
+    void findBeanByName() {
+        MemberService memberService = ac.getBean("memberService", MemberService.class);
+        assertThat(memberService).isInstanceOf(MemberServiceImpl.class);
+    }
+
+    @Test
+    @DisplayName("빈 타입으로 조회")
+    void findBeanByType() {
+        MemberService memberService = ac.getBean(MemberService.class);
+        assertThat(memberService).isInstanceOf(MemberServiceImpl.class);
+    }
+
+    @Test
+    @DisplayName("구체 타입으로 조회")
+    void findBeanByName2() {
+        MemberService memberService = ac.getBean("memberService", MemberServiceImpl.class);
+        assertThat(memberService).isInstanceOf(MemberServiceImpl.class);
+    }
+
+    @Test
+    @DisplayName("빈 이름으로 조회 X")
+    void findBeanByNameX() {
+        assertThrows(NoSuchBeanDefinitionException.class,
+                () -> ac.getBean("MemberService", MemberService.class));
+    }
+}
+```
+
+
+
+### 스프링 빈 조회 - 동일한 타입이 둘 이상
+
+* 타입으로 조회시 같은 타입의 스프링 빈이 둘 이상이면 오류가 발생한다. 이때는 빈 이름을 지정하자.
+*  `ac.getBeansOfType()` 을 사용하면 해당 타입의 모든 빈을 조회할 수 있다.
+
