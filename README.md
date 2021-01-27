@@ -349,3 +349,36 @@ public class MemberApp {
   * applicationContext.getBean() 메서드 를 사용해서 찾을 수 있다.
 * 기존에는 개발자가 직접 자바코드로 모든 것을 했다면 이제부터는 스프링 컨테이너에 객체를 스프링 빈으로 등록하고, 스프링 컨테이너에서 스프링 빈을 찾아서 사용하도록 변경되었다.
   
+
+
+
+## 스프링 컨테이너와 스프링 빈
+
+
+
+### 스프링 컨테이너 생성
+
+```java
+  ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+```
+
+* `ApplicationContext` 를 스프링 컨테이너라 한다.
+* 스프링 컨테이너는 XML 또는 애노테이션 기반의 자바 설정 클래스로 만들 수 있다.
+* ApplicationContext : 인터페이스
+* AnnotationConfigApplicationContext: 구현체
+
+> 더 정확히는 스프링 컨테이너를 부를 때 `BeanFactory` , `ApplicationContext` 로 구분해서 이야기 한다. 이 부분은 뒤에서 설명하겠다. `BeanFactory` 를 직접 사용하는 경우는 거의 없으므로 일반적으로 `ApplicationContext` 를 스프링 컨테이너라 한다.
+
+
+
+### 스프링 컨테이너 생성 과정
+
+1. 스프링 컨테이너 생성
+   * `new AnnotationConfigApplicationContext(AppConfig.class)`
+   * 스프링 컨테이너를 생성할 때 구성 정보(AppConfig.class)를 넘겨주어야 한다.
+2. 스프링 빈 등록
+   * 스프링 컨테이너는 파라미터로 넘어온 설정 클래스 정보를 사용해서 스프링 빈을 등록한다.
+3. 스프링 빈 의존관계 설정 - 준비
+4. 스프링 빈 의존관계 설정 - 완료
+   * 스프링 컨테이너는 설정 정보를 참고해서 의존관계를 주입(DI)한다.
+   * 단순히 자바 코드를 호출하는 것 과는 차이가 있다.
