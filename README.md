@@ -382,3 +382,55 @@ public class MemberApp {
 4. 스프링 빈 의존관계 설정 - 완료
    * 스프링 컨테이너는 설정 정보를 참고해서 의존관계를 주입(DI)한다.
    * 단순히 자바 코드를 호출하는 것 과는 차이가 있다.
+
+### 컨테이너에 등록된 모든 빈 조회
+
+* `ac.getBeanDefinitionNames()` : 스프링에 등록된 모든 빈 이름을 조회한다.
+* `ac.getBean()` : 빈 이름으로 빈 객체(인스턴스)를 조회한다.
+* ROLE_APPLICATION : 일반적으로 사용자가 정의한 빈 
+* ROLE_INFRASTRUCTURE : 스프링이 내부에서 사용하는 빈
+
+```java
+class ApplicationContextInfoTest {
+
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
+
+    @Test
+    @DisplayName("모든 빈 출력하기")
+    void printAllBeans() {
+        String[] beanDefinitionNames = ac.getBeanDefinitionNames();
+        for (String beanDefinitionName : beanDefinitionNames) {
+            Object bean = ac.getBean(beanDefinitionName);
+            System.out.println("name: " + beanDefinitionName + " bean: " + bean);
+        }
+    }
+
+    @Test
+    @DisplayName("모든 빈 출력하기")
+    void printAllApplicationBeans() {
+        String[] beanDefinitionNames = ac.getBeanDefinitionNames();
+        for (String beanDefinitionName : beanDefinitionNames) {
+            BeanDefinition beanDefinition = ac.getBeanDefinition(beanDefinitionName);
+            if (beanDefinition.getRole() == BeanDefinition.ROLE_APPLICATION) {
+                Object bean = ac.getBean(beanDefinitionName);
+                System.out.println("name: " + beanDefinitionName + " bean: " + bean);
+            }
+        }
+    }
+}
+```
+
+
+
+printAllApplicationBeans 출력결과
+
+```bash
+...
+name: appConfig bean: com.example.studyspringcore.AppConfig$$EnhancerBySpringCGLIB$$b5cd41de@732f29af
+name: memberRepository bean: com.example.studyspringcore.member.MemoryMemberRepository@d3957fe
+name: discountPolicy bean: com.example.studyspringcore.discount.RateDiscountPolicy@6622fc65
+name: memberService bean: com.example.studyspringcore.member.MemberServiceImpl@299321e2
+name: orderService bean: com.example.studyspringcore.order.OrderServiceImpl@23fb172e
+...
+```
+
