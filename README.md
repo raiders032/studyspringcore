@@ -111,3 +111,54 @@ public class AppConfig {
 }
 ```
 
+
+
+### 새로운 구조와 할인 정책 적용
+
+* `FixDiscountPolicy` 를 `RateDiscountPolicy` 로 바꿔보자
+* `AppConfig` 의 등장으로 애플리케이션을 크게 `사용 영역`과 객체를 생성하고 구성하는 `구성 영역`으로 분리되었다.
+
+**고정 할인 정책 사용할 때 OrderApp출력 결과**
+
+```bash
+order = Order{memberId=1, itemName='spring', itemPrice=20000, discountPrice=1000}
+order.calculatePrice = 19000
+```
+
+**새로운 할인 정책 사용**
+
+* AppConfig만 수정하면 된다.
+* `구성 영역`을 수정해서 할인 정책 역할을 담당하는 구현을 `FixDiscountPolicy` 에서 `RateDiscountPolicy` 로 변경했다
+* `사용 영역`의 어떠한 코드도 수정하지 않았다
+* 할인 정책을 바꾸기 위해서 `OrderServiceImpl` 의 코드를 수정할 필요가 없으므로 `OCP`를 준수한다.
+
+```java
+public class AppConfig {
+
+    private MemberRepository memberRepository() {
+        return new MemoryMemberRepository();
+    }
+
+    private DiscountPolicy discountPolicy() {
+      	// RateDiscountPolicy로 정책을 변경
+        return new RateDiscountPolicy();
+    }
+
+    public MemberService memberService(){
+        return new MemberServiceImpl(memberRepository());
+    }
+
+    public OrderService orderService(){
+        return new OrderServiceImpl(discountPolicy(), memberRepository());
+    }
+
+}
+```
+
+**AppConfig 수정 후 비율 할인 정책 사용할 때 OrderApp출력 결과**
+
+```bash
+order = Order{memberId=1, itemName='spring', itemPrice=20000, discountPrice=2000}
+order.calculatePrice = 18000
+```
+

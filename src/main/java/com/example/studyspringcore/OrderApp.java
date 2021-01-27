@@ -12,7 +12,7 @@ public class OrderApp {
         MemberService memberService = appConfig.memberService();
         Member member = new Member(1L, "nys", Grade.VIP);
         memberService.join(member);
-        Order order = orderService.createOrder(1L, "spring", 10000);
+        Order order = orderService.createOrder(1L, "spring", 20000);
         System.out.println("order = " + order);
         System.out.println("order.calculatePrice = " + order.calculatePrice());
     }
