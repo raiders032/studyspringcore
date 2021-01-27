@@ -35,3 +35,53 @@ public class OrderServiceImpl implements OrderService {
    * 구현체가 없는데 어떻게 코드를 실행할 수 있지?
 2. 누군가가 클라이언트인 `OrderServiceImpl` 에 `DiscountPolicy` 의 구현 객체를 대신 생성하고 주입해주어야 한다.
 
+
+
+### 관심사의 분리
+
+* 현재 코드의 문제점을 비유해보자면 배우가 공연도 하고 상대방을 캐스팅하는 다양한 책임을 가지고 있는 것이다.
+* `배우`는 본인의 역할인 배역을 수행하는데 집중하고 역할에 맞는 배우를 지정하는 책임을 가지는 별도의 `공연 기획자`가 필요한 시점이다.
+
+
+
+### AppConfig 생성
+
+``` java
+public class AppConfig {
+
+    public MemberService memberService(){
+        return new MemberServiceImpl(new MemoryMemberRepository());
+    }
+
+    public OrderService orderService(){
+        return new OrderServiceImpl(new FixDiscountPolicy(), new MemoryMemberRepository());
+    }
+
+}
+```
+
+* AppConfig는 애플리케이션의 실제 동작에 필요한 **구현 객체를 생성**한다.
+* AppConfig는 생성한 객체 인스턴스의 참조(레퍼런스)를 생성자를 통해서 주입(연결)해준다.
+
+
+
+### OrderServiceImpl 생성자 주입
+
+```java
+public class OrderServiceImpl implements OrderService {
+
+    private final DiscountPolicy discountPolicy;
+    private final MemberRepository memberRepository;
+
+    public OrderServiceImpl(DiscountPolicy discountPolicy, MemberRepository memberRepository) {
+        this.discountPolicy = discountPolicy;
+        this.memberRepository = memberRepository;
+    }
+  
+}
+```
+
+* 설계의 변경으로  `OrderServiceImpl` 은 `FixDiscountPolicy` 를 의존하지 않는다
+* `OrderServiceImpl` 의 생성자를 통해서 어떤 구현 객체을 주입할지는 오직 외부( AppConfig )에서 결정 한다.
+* DIP 원칙을 준수하게 되었다!!
+
