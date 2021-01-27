@@ -1,7 +1,6 @@
 package com.example.studyspringcore;
 
 import com.example.studyspringcore.discount.DiscountPolicy;
-import com.example.studyspringcore.discount.FixDiscountPolicy;
 import com.example.studyspringcore.discount.RateDiscountPolicy;
 import com.example.studyspringcore.member.MemberRepository;
 import com.example.studyspringcore.member.MemberService;
@@ -9,22 +8,29 @@ import com.example.studyspringcore.member.MemberServiceImpl;
 import com.example.studyspringcore.member.MemoryMemberRepository;
 import com.example.studyspringcore.order.OrderService;
 import com.example.studyspringcore.order.OrderServiceImpl;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class AppConfig {
 
-    private MemberRepository memberRepository() {
+    @Bean
+    public MemberRepository memberRepository() {
         return new MemoryMemberRepository();
     }
 
-    private DiscountPolicy discountPolicy() {
+    @Bean
+    public DiscountPolicy discountPolicy() {
         return new RateDiscountPolicy();
     }
 
-    public MemberService memberService(){
+    @Bean
+    public MemberService memberService() {
         return new MemberServiceImpl(memberRepository());
     }
 
-    public OrderService orderService(){
+    @Bean
+    public OrderService orderService() {
         return new OrderServiceImpl(discountPolicy(), memberRepository());
     }
 
