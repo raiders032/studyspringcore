@@ -641,11 +641,52 @@ public class ApplicationContextExtendsFindTest {
 
 
 
+### 스프링 빈 설정 메타 정보 - BeanDefinition
+
+* 스프링은 어떻게 이런 다양한 설정 형식을 지원하는 것일까? 그 중심에는 BeanDefinition 이라는 추상화 가 있다.
+* 쉽게 이야기해서 **역할과 구현을 개념적으로 나눈 것**이다!
+  * XML을 읽어서 BeanDefinition을 만들면 된다.
+  * 자바 코드를 읽어서 BeanDefinition을 만들면 된다.
+  * 스프링 컨테이너는 자바 코드인지, XML인지 몰라도 된다. 오직 BeanDefinition만 알면 된다.
+* BeanDefinition 을 빈 설정 메타정보라 한다.
+  * @Bean , <bean> 당 각각 하나씩 메타 정보가 생성된다.
+* 스프링 컨테이너는 이 메타정보를 기반으로 스프링 빈을 생성한다.
+
+![image-20210202141709754](/Users/YT/Desktop/project/studyspringcore/images/image-20210202141709754.png)
+
+* AnnotationConfigApplicationContext 는 AnnotatedBeanDefinitionReader 를 사용해서 AppConfig.class 를 읽고 BeanDefinition 을 생성한다
+* GenericXmlApplicationContext 는 XmlBeanDefinitionReader 를 사용해서 appConfig.xml 설정 정보를 읽고 BeanDefinition 을 생성한다.
+* 새로운 형식의 설정 정보가 추가되면, XxxBeanDefinitionReader를 만들어서 BeanDefinition 을 생성 하면 된다.
 
 
 
+## 싱글톤 컨테이너
+
+## 
+
+### 웹 애플리케이션과 싱글톤
+
+> 스프링은 태생이 기업용 온라인 서비스 기술을 지원하기 위해 탄생했다.  따라서 스프링 애플리케이션의 대부분은 웹 애플리케이션이다. 보통 여러 고객이 동시에 웹 애플리케이션의 요청을 한다.
 
 
+
+**스프링 없는 순수한 DI 컨테이너 테스트**
+
+![image-20210202143347673](./images/image-20210202143347673.png)
+
+
+
+**문제점**
+
+1. 요청을 할 때 마다 객체를 새로 생성한다.
+2. 고객 트래픽이 초당 100이 나오면 초당 100개 객체가 생성되고 소멸된다
+   * 메모리 낭비가 심하다.
+
+
+
+**해결법**
+
+* 해당 객체가 딱 1개만 생성되고, 공유하도록 설계하면 된다 -> 싱글톤 패턴
 
 
 
