@@ -759,3 +759,80 @@ void springContainer(){
 }
 ```
 
+
+
+### 싱글톤 방식의 주의점
+
+* 여러 클라이언트가 하나의 같은 객체 인스턴스를 공유하기 때문에 싱글톤 객체는 상태를 유지하게 설계하면 안된다.
+* stateless하게 설계해야 한다.
+  * 특정 클라이언트에 의존적인 필드가 있으면 안된다.
+
+  * 특정 클라이언트가 값을 변경할 수 있는 필드가 있으면 안된다.
+  * 가급적 읽기만 가능해야 한다.
+  * 필드 대신에 자바에서 공유되지 않는, 지역변수, 파라미터, ThreadLocal 등을 사용해야 한다.
+
+**테스트**
+
+* `StatefulService` 와 `StatefulServiceTest` 작성
+* stateful 한 싱글톤 객체를 사용할 때 발생하는 문제점
+* `StatefulService` 의 `price` 필드는 공유되는 필드인데, 특정 클라이언트가 값을 변경한다.
+
+```java
+public class StatefulService {
+
+    private int price;
+
+    public void order(String name, int price) {
+        System.out.println("name : " + name + " price : " + price);
+        this.price = price;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+}
+
+```
+
+```java
+class StatefulServiceTest {
+
+    @Test
+    @DisplayName("stateful 싱글톤")
+    void statefulServiceSingleton(){
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(TestConfig.class);
+        StatefulService statefulService = applicationContext.getBean("statefulService", StatefulService.class);
+
+        // member1 주문
+        statefulService.order("member1", 10000);
+        // member2 주문
+        statefulService.order("member2", 20000);
+
+        // member1 주문 금액 조회 10000원을 예상하지만 20000원이 조회됨
+        int price = statefulService.getPrice();
+        Assertions.assertThat(price).isEqualTo(20000);
+    }
+
+    static class TestConfig{
+        @Bean
+        public StatefulService statefulService(){
+            return new StatefulService();
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
