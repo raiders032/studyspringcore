@@ -824,13 +824,62 @@ class StatefulServiceTest {
 
 
 
+### @Configuration과 싱글톤
+
+```java
+@Configuration
+public class AppConfig {
+
+    @Bean
+    public MemberRepository memberRepository() {
+        return new MemoryMemberRepository();
+    }
+
+    @Bean
+    public DiscountPolicy discountPolicy() {
+        return new RateDiscountPolicy();
+    }
+
+    @Bean
+    public MemberService memberService() {
+        return new MemberServiceImpl(memberRepository());
+    }
+
+    @Bean
+    public OrderService orderService() {
+        return new OrderServiceImpl(discountPolicy(), memberRepository());
+    }
+
+}
+```
+
+* memberService 빈을 만드는 코드를 보면 memberRepository() 를 호출한다. 
+  * 이 메서드를 호출하면 new MemoryMemberRepository() 를 호출한다. 
+* orderService 빈을 만드는 코드도 동일하게 memberRepository() 를 호출한다. 
+  * 이 메서드를 호출하면 new MemoryMemberRepository() 를 호출한다.
+* new MemoryMemberRepository() 가 2번 호출되면서 싱글톤이 지켜지지 않는것 같다 테스트를 해보자
 
 
 
+**테스트**
 
+```java
+@Test
+void singleton(){
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
 
+        MemberServiceImpl memberService = applicationContext.getBean("memberService", MemberServiceImpl.class);
+        OrderServiceImpl orderService = applicationContext.getBean("orderService", OrderServiceImpl.class);
+        MemberRepository memberRepository = applicationContext.getBean("memberRepository", MemberRepository.class);
 
+        assertThat(memberService.getMemberRepository()).isSameAs(memberRepository);
+        assertThat(orderService.getMemberRepository()).isSameAs(memberRepository);
 
+}
+```
+
+* 테스트 결과 같은 객체를 참조하고 있다. 
+  * 즉 싱글톤이 지켜졌다. 어떻게 해결한 것일까?
 
 
 

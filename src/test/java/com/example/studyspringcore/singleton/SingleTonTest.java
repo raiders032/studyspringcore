@@ -1,7 +1,11 @@
 package com.example.studyspringcore.singleton;
 
 import com.example.studyspringcore.AppConfig;
+import com.example.studyspringcore.member.MemberRepository;
 import com.example.studyspringcore.member.MemberService;
+import com.example.studyspringcore.member.MemberServiceImpl;
+import com.example.studyspringcore.order.OrderService;
+import com.example.studyspringcore.order.OrderServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
@@ -41,6 +45,20 @@ public class SingleTonTest {
 
         //참조값이 같은 것을 확인
         assertThat(memberService1).isSameAs(memberService2);
+    }
+
+    @Test
+    void singleton(){
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+
+        MemberServiceImpl memberService = applicationContext.getBean("memberService", MemberServiceImpl.class);
+        OrderServiceImpl orderService = applicationContext.getBean("orderService", OrderServiceImpl.class);
+        MemberRepository memberRepository = applicationContext.getBean("memberRepository", MemberRepository.class);
+
+        assertThat(memberService.getMemberRepository()).isSameAs(memberRepository);
+        assertThat(orderService.getMemberRepository()).isSameAs(memberRepository);
 
     }
+
+
 }
